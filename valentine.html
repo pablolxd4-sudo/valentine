@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Будешь моей валентинкой?</title>
+
+  <style>
+    body{
+      margin:0; height:100vh; display:flex; justify-content:center; align-items:center;
+      background: linear-gradient(135deg, #ffd1e1, #fff6fb);
+      font-family: Arial, sans-serif;
+      overflow:hidden;
+    }
+    .box{
+      background: rgba(255,255,255,0.9);
+      padding: 26px;
+      border-radius: 22px;
+      text-align:center;
+      position:relative;
+      width:min(420px, calc(100% - 32px));
+      height: 240px;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.12);
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+    h1{ margin: 0 0 14px; font-size: 24px; }
+    .row{ margin-top: 10px; height: 64px; position: relative; }
+    button{
+      padding: 12px 22px;
+      font-size: 18px;
+      border-radius: 14px;
+      border:none;
+      cursor:pointer;
+      user-select:none;
+      touch-action: manipulation;
+      transition: transform 120ms ease, filter 120ms ease;
+    }
+    button:active{ transform: scale(0.98); }
+    #yes{
+      background: #ff2f76;
+      color:white;
+      position: relative;
+      z-index: 2;
+    }
+    #yes:hover{ filter: brightness(1.05); }
+
+    #no{
+      background:#efefef;
+      color:#222;
+      position:absolute;
+      left: 58%;
+      top: 0;
+      z-index: 2;
+    }
+
+    #result{
+      margin-top: 16px;
+      font-size: 20px;
+      color: #ff2f76;
+      font-weight: 700;
+      min-height: 26px;
+    }
+
+    /* частицы */
+    .particle{
+      position: absolute;
+      top: -20px;
+      pointer-events: none;
+      animation: fall 2.6s linear forwards;
+      opacity: 0.95;
+    }
+    @keyframes fall{
+      to{ transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="box" id="box">
+    <h1>Будешь моей валентинкой? 💘</h1>
+
+    <div class="row" id="row">
+      <button id="yes">Да</button>
+      <button id="no" aria-label="Нет">Нет</button>
+    </div>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const box = document.getElementById("box");
+    const row = document.getElementById("row");
+    const yesBtn = document.getElementById("yes");
+    const noBtn  = document.getElementById("no");
+    const result = document.getElementById("result");
+
+    let yesScale = 1;
+    let dodgeBoost = 0; // чем больше — тем более "нервная" кнопка Нет
+
+    // 🔊 мини-поп звук через WebAudio (без файлов)
+    let audioCtx;
+    function popSound(){
+      try{
+        audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = "sine";
+        o.frequency.value = 520 + Math.random()*200;
+        g.gain.value = 0.06;
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start();
+        o.frequency.exponentialRampToValueAtTime(140, audioCtx.currentTime + 0.08);
+        g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.12);
+        o.stop(audioCtx.currentTime + 0.12);
+      }catch(e){}
+    }
+
+    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+
+    // 💨 поставить кнопку "Нет" внутри row, чтобы не вылетала
+    function moveNo(){
+      const r = row.getBoundingClientRect();
+      const b = noBtn.getBoundingClientRect();
+
+      const padding = 6;
+      const maxX = r.width - b.width - padding;
+      const maxY = r.height - b.height - padding;
+
+      // чем больше dodgeBoost, тем сильнее "рывок"
+      const chaos = 1 + dodgeBoost * 0.25;
+
+      const x = clamp(Math.floor(Math.random() * maxX * chaos), padding, maxX);
+      const y = clamp(Math.floor(Math.random() * maxY * chaos), padding, maxY);
+
+      noBtn.style.left = x + "px";
+      noBtn.style.top  = y + "px";
+    }
+
+    function growYes(){
+      yesScale = Math.min(2.2, yesScale + 0.12);
+      yesBtn.style.transform = `scale(${yesScale})`;
+    }
+
+    // 🎉 частицы: конфетти + сердечки
+    function launchParticles(){
+      const colors = ["#ff2f76","#ffd400","#00c2ff","#7CFF6B","#ff7a00","#b56bff"];
+      const emojis = ["💖","💘","💕","💗","💞"];
+
+      for(let i=0;i<80;i++){
+        const p = document.createElement("div");
+        p.className = "particle";
+
+        const isEmoji = Math.random() < 0.45;
+        if(isEmoji){
+          p.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+          p.style.fontSize = (14 + Math.random()*18) + "px";
+        } else {
+          p.style.width  = (6 + Math.random()*10) + "px";
+          p.style.height = p.style.width;
+          p.style.background = colors[Math.floor(Math.random()*colors.length)];
+          p.style.borderRadius = Math.random() < 0.5 ? "50%" : "2px";
+        }
+
+        p.style.left = (Math.random()*100) + "vw";
+        p.style.animationDuration = (2.0 + Math.random()*1.6) + "s";
+        document.body.appendChild(p);
+
+        setTimeout(()=>p.remove(), 4000);
+      }
+    }
+
+    // 😈 при попытке "Нет" — убегает, "Да" растёт, звук, и скорость увеличивается
+    function dodgeNo(e){
+      if(e && e.type === "touchstart"){
+        e.preventDefault();
+      }
+      popSound();
+      moveNo();
+      growYes();
+      dodgeBoost = Math.min(8, dodgeBoost + 1);
+    }
+
+    // ПК
+    noBtn.addEventListener("mouseenter", dodgeNo);
+    // Телефон
+    noBtn.addEventListener("touchstart", dodgeNo, {passive:false});
+    // Если кнопка получила фокус (Tab) — тоже убегаем
+    noBtn.addEventListener("focus", dodgeNo);
+
+    yesBtn.addEventListener("click", ()=>{
+      popSound();
+      result.textContent = "УРААА 💖 Ты моя валентинка!!!";
+      launchParticles();
+
+      // бонус: прячем "Нет"
+      noBtn.style.display = "none";
+      yesBtn.textContent = "💍 Согласна/согласен!";
+    });
+
+    // стартовое размещение
+    window.addEventListener("load", ()=>{ moveNo(); });
+    window.addEventListener("resize", ()=>{ moveNo(); });
+  </script>
+</body>
+</html>
+
