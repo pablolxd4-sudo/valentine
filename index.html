@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Будешь моей валентинкой?</title>
+  <title>Валентинка</title>
 
   <style>
     body{
@@ -19,7 +19,7 @@
       text-align:center;
       position:relative;
       width:min(420px, calc(100% - 32px));
-      height: 240px;
+      height: 260px;
       box-shadow: 0 12px 35px rgba(0,0,0,0.12);
       border: 1px solid rgba(0,0,0,0.06);
     }
@@ -61,6 +61,17 @@
       min-height: 26px;
     }
 
+    /* подпись */
+    .signature{
+      position: absolute;
+      right: 14px;
+      bottom: 12px;
+      font-size: 13px;
+      color: rgba(0,0,0,0.45);
+      font-style: italic;
+      user-select: none;
+    }
+
     /* частицы */
     .particle{
       position: absolute;
@@ -76,7 +87,7 @@
 </head>
 <body>
   <div class="box" id="box">
-    <h1>Будешь моей валентинкой? 💘</h1>
+    <h1>Алеся, ты будешь моей валентинкой? 💘</h1>
 
     <div class="row" id="row">
       <button id="yes">Да</button>
@@ -84,19 +95,20 @@
     </div>
 
     <div id="result"></div>
+
+    <div class="signature">Никита Захлестных</div>
   </div>
 
   <script>
-    const box = document.getElementById("box");
     const row = document.getElementById("row");
     const yesBtn = document.getElementById("yes");
     const noBtn  = document.getElementById("no");
     const result = document.getElementById("result");
 
     let yesScale = 1;
-    let dodgeBoost = 0; // чем больше — тем более "нервная" кнопка Нет
+    let dodgeBoost = 0;
 
-    // 🔊 мини-поп звук через WebAudio (без файлов)
+    // 🔊 мини-поп звук
     let audioCtx;
     function popSound(){
       try{
@@ -116,16 +128,14 @@
 
     function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
 
-    // 💨 поставить кнопку "Нет" внутри row, чтобы не вылетала
     function moveNo(){
       const r = row.getBoundingClientRect();
       const b = noBtn.getBoundingClientRect();
-
       const padding = 6;
+
       const maxX = r.width - b.width - padding;
       const maxY = r.height - b.height - padding;
 
-      // чем больше dodgeBoost, тем сильнее "рывок"
       const chaos = 1 + dodgeBoost * 0.25;
 
       const x = clamp(Math.floor(Math.random() * maxX * chaos), padding, maxX);
@@ -140,7 +150,7 @@
       yesBtn.style.transform = `scale(${yesScale})`;
     }
 
-    // 🎉 частицы: конфетти + сердечки
+    // 🎉 конфетти + сердечки
     function launchParticles(){
       const colors = ["#ff2f76","#ffd400","#00c2ff","#7CFF6B","#ff7a00","#b56bff"];
       const emojis = ["💖","💘","💕","💗","💞"];
@@ -168,38 +178,28 @@
       }
     }
 
-    // 😈 при попытке "Нет" — убегает, "Да" растёт, звук, и скорость увеличивается
     function dodgeNo(e){
-      if(e && e.type === "touchstart"){
-        e.preventDefault();
-      }
+      if(e && e.type === "touchstart") e.preventDefault();
       popSound();
       moveNo();
       growYes();
       dodgeBoost = Math.min(8, dodgeBoost + 1);
     }
 
-    // ПК
     noBtn.addEventListener("mouseenter", dodgeNo);
-    // Телефон
     noBtn.addEventListener("touchstart", dodgeNo, {passive:false});
-    // Если кнопка получила фокус (Tab) — тоже убегаем
     noBtn.addEventListener("focus", dodgeNo);
 
     yesBtn.addEventListener("click", ()=>{
       popSound();
-      result.textContent = "УРААА 💖 Ты моя валентинка!!!";
+      result.textContent = "УРААА 💖💖💖";
       launchParticles();
-
-      // бонус: прячем "Нет"
       noBtn.style.display = "none";
-      yesBtn.textContent = "💍 Согласна/согласен!";
+      yesBtn.textContent = "💍 Ура!";
     });
 
-    // стартовое размещение
     window.addEventListener("load", ()=>{ moveNo(); });
     window.addEventListener("resize", ()=>{ moveNo(); });
   </script>
 </body>
 </html>
-
