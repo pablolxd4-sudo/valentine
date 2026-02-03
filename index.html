@@ -4,205 +4,215 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Валентинка 💘</title>
-
   <style>
     body{
-      margin:0;
-      height:100vh;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      font-family: Arial, sans-serif;
-      overflow:hidden;
+      margin:0;height:100vh;display:flex;align-items:center;justify-content:center;
+      font-family:Arial,sans-serif;overflow:hidden;
       background: linear-gradient(135deg, #ffb6d5, #fff0f7);
     }
-
     .card{
-      width:min(480px, calc(100% - 30px));
-      height:320px;
-      background:white;
-      border-radius:25px;
-      padding:25px;
+      width:min(520px, calc(100% - 30px));
+      height:340px;
+      background:rgba(255,255,255,.92);
+      border-radius:26px;
+      padding:26px;
+      position:relative;
+      box-shadow:0 18px 50px rgba(0,0,0,.16);
       text-align:center;
+    }
+    h1{margin:0;color:#ff2f76;font-size:24px;}
+    .zone{
+      margin-top:46px;
+      height:120px;
       position:relative;
-      box-shadow:0 15px 40px rgba(0,0,0,0.15);
+      border-radius:18px;
     }
-
-    h1{
-      margin:0;
-      font-size:24px;
-      color:#ff2f76;
-    }
-
-    .buttons{
-      margin-top:45px;
-      display:flex;
-      justify-content:center;
-      gap:20px;
-      position:relative;
-      height:90px;
-    }
-
     button{
       padding:14px 28px;
       font-size:18px;
-      border:none;
-      border-radius:16px;
-      cursor:pointer;
-      transition:0.2s;
+      border:none;border-radius:16px;
+      cursor:pointer; user-select:none; touch-action:manipulation;
+      transition:transform .15s ease, filter .15s ease;
+    }
+    #yes{
+      background:#ff2f76;color:#fff;font-weight:800;
+      position:absolute; left:50%; transform:translateX(-115px);
+      top:20px; z-index:3;
+      box-shadow:0 10px 25px rgba(255,47,118,.35);
+    }
+    #no{
+      background:#eee;color:#222;
+      position:absolute; left:50%; transform:translateX(60px);
+      top:20px; z-index:2;
+    }
+    #result{margin-top:18px;min-height:30px;font-size:22px;font-weight:800;color:#ff2f76;}
+    #fun{margin-top:8px;min-height:22px;color:#444;}
+    .signature{
+      position:absolute;right:14px;bottom:12px;
+      font-size:13px;color:rgba(0,0,0,.45);font-style:italic;
       user-select:none;
     }
 
-    #yes{
-      background:#ff2f76;
-      color:white;
-      font-weight:bold;
-      z-index:2;
-    }
+    /* частицы */
+    .p{position:absolute;top:-30px;pointer-events:none;animation:fall 2.8s linear forwards;}
+    @keyframes fall{to{transform:translateY(115vh) rotate(720deg);opacity:0}}
 
-    #no{
-      background:#eee;
-      position:absolute;
-      left:55%;
-      top:0;
+    /* финальный оверлей */
+    .overlay{
+      position:fixed;inset:0;display:none;
+      background:rgba(255,240,247,.72);
+      backdrop-filter: blur(6px);
+      align-items:center;justify-content:center;
+      z-index:999;
     }
-
-    #result{
-      margin-top:25px;
-      font-size:22px;
-      font-weight:bold;
-      color:#ff2f76;
-      min-height:30px;
+    .overlay .big{
+      background:white;border-radius:26px;
+      padding:28px 26px;
+      box-shadow:0 20px 70px rgba(0,0,0,.22);
+      text-align:center;
+      width:min(560px, calc(100% - 24px));
     }
-
-    #funText{
-      margin-top:10px;
-      font-size:16px;
-      color:#444;
-      min-height:22px;
-    }
-
-    .signature{
-      position:absolute;
-      bottom:10px;
-      right:15px;
-      font-size:13px;
-      color:gray;
-      font-style:italic;
-    }
-
-    .confetti{
-      position:absolute;
-      top:-20px;
-      animation: fall 3s linear forwards;
-      pointer-events:none;
-    }
-
-    @keyframes fall{
-      to{
-        transform:translateY(110vh) rotate(720deg);
-        opacity:0;
-      }
-    }
+    .overlay h2{margin:0 0 10px;font-size:30px;color:#ff2f76;}
+    .overlay p{margin:0;font-size:18px;color:#333;}
   </style>
 </head>
-
 <body>
-  <div class="card">
+  <div class="card" id="card">
     <h1>Алеся, ты будешь моей валентинкой? 💘</h1>
 
-    <div class="buttons" id="zone">
+    <div class="zone" id="zone">
       <button id="yes">Да 💖</button>
       <button id="no">Нет</button>
     </div>
 
     <div id="result"></div>
-    <div id="funText"></div>
-
+    <div id="fun"></div>
     <div class="signature">Никита Захлестных</div>
   </div>
 
-  <script>
-    const yesBtn = document.getElementById("yes");
-    const noBtn = document.getElementById("no");
-    const zone = document.getElementById("zone");
+  <div class="overlay" id="overlay">
+    <div class="big">
+      <h2>ПОЗДРАВЛЯЮ 💍💖</h2>
+      <p>Теперь вы официально <b>муж и жена</b> (по версии этого сайта) 😎</p>
+      <p style="margin-top:10px;">Нажми обновить страницу, если хочешь пройти испытание снова 😂</p>
+    </div>
+  </div>
 
+  <script>
+    const zone = document.getElementById("zone");
+    const yes = document.getElementById("yes");
+    const no = document.getElementById("no");
     const result = document.getElementById("result");
-    const funText = document.getElementById("funText");
+    const fun = document.getElementById("fun");
+    const overlay = document.getElementById("overlay");
 
     let yesScale = 1;
-    let counter = 0;
+    let tries = 0;
 
     const excuses = [
-      "ой промахнулась 😳",
-      "не туда жмёшь 😂",
+      "ой не туда 😂",
+      "кнопка «Нет» на перерыве 😴",
       "Алеся, ну пожалуйста 💖",
-      "нет кнопки нет 😈",
-      "ты серьёзно хочешь нажать 'Нет'?",
-      "я убегаю!!! 🏃‍♂️",
-      "ДА выбирай 😭",
-      "ну хватит уже 😂",
-      "последний шанс..."
+      "ты серьёзно? 😳",
+      "ну не нажимай 😭",
+      "я щас убегу!!! 🏃‍♂️",
+      "ДА выбирай 😈",
+      "последний шанс... ну давай 😅"
     ];
 
-    function moveNo(){
-      const rect = zone.getBoundingClientRect();
-
-      // двигаем только справа (не мешаем Да)
-      const minX = rect.width / 2;
-      const maxX = rect.width - noBtn.offsetWidth;
-      const maxY = rect.height - noBtn.offsetHeight;
-
-      const x = Math.random() * (maxX - minX) + minX;
-      const y = Math.random() * maxY;
-
-      noBtn.style.left = x + "px";
-      noBtn.style.top = y + "px";
-
-      // увеличиваем Да
-      yesScale += 0.12;
-      yesBtn.style.transform = `scale(${yesScale})`;
-
-      // меняем текст
-      funText.textContent = excuses[counter % excuses.length];
-      counter++;
+    // Запрещённая зона = прямоугольник вокруг кнопки "Да"
+    function getYesRectInZone() {
+      const zr = zone.getBoundingClientRect();
+      const yr = yes.getBoundingClientRect();
+      return {
+        left: yr.left - zr.left,
+        top: yr.top - zr.top,
+        right: yr.right - zr.left,
+        bottom: yr.bottom - zr.top
+      };
     }
 
-    // ПК
-    noBtn.addEventListener("mouseenter", moveNo);
+    function intersects(a, b){
+      return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
+    }
 
-    // Телефон
-    noBtn.addEventListener("touchstart", (e)=>{
-      e.preventDefault();
-      moveNo();
-    });
+    function moveNo(){
+      const zr = zone.getBoundingClientRect();
+      const bw = no.offsetWidth;
+      const bh = no.offsetHeight;
 
-    // конфетти
-    function confetti(){
-      for(let i=0;i<80;i++){
-        const c = document.createElement("div");
-        c.className="confetti";
-        c.textContent = Math.random()<0.5 ? "💖" : "🎉";
+      const padding = 8;
+      const maxX = zr.width - bw - padding;
+      const maxY = zr.height - bh - padding;
 
-        c.style.left = Math.random()*100 + "vw";
-        c.style.fontSize = (15+Math.random()*25)+"px";
-        c.style.animationDuration = (2+Math.random()*2)+"s";
+      const forbidden = getYesRectInZone();
+      // расширим запретную область, чтобы точно не налезало
+      const padF = 16;
+      const forbid = {
+        left: forbidden.left - padF,
+        top: forbidden.top - padF,
+        right: forbidden.right + padF,
+        bottom: forbidden.bottom + padF
+      };
 
-        document.body.appendChild(c);
-        setTimeout(()=>c.remove(),4000);
+      // пробуем найти позицию, которая не пересекается с "Да"
+      for(let i=0;i<60;i++){
+        const x = Math.floor(Math.random() * maxX) + padding;
+        const y = Math.floor(Math.random() * maxY) + padding;
+
+        const noRect = {left:x, top:y, right:x+bw, bottom:y+bh};
+        if(!intersects(noRect, forbid)){
+          no.style.left = x + "px";
+          no.style.top = y + "px";
+          break;
+        }
+      }
+
+      // растим "Да"
+      yesScale = Math.min(3.2, yesScale + 0.13);
+      yes.style.transform = `translateX(-115px) scale(${yesScale})`;
+
+      fun.textContent = excuses[tries % excuses.length];
+      tries++;
+    }
+
+    function boom(){
+      const emojis = ["💖","💘","💕","💗","💞","🎉","✨"];
+      for(let i=0;i<90;i++){
+        const p = document.createElement("div");
+        p.className="p";
+        p.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+        p.style.left = (Math.random()*100) + "vw";
+        p.style.fontSize = (14 + Math.random()*22) + "px";
+        p.style.animationDuration = (2 + Math.random()*2) + "s";
+        document.body.appendChild(p);
+        setTimeout(()=>p.remove(), 4500);
       }
     }
 
-    yesBtn.addEventListener("click", ()=>{
-      result.textContent="Я ЗНАЛ!!! 💍💖";
-      funText.textContent="Теперь ты официально моя валентинка 😎";
-      confetti();
+    function dodge(e){
+      if(e && e.type === "touchstart") e.preventDefault();
+      moveNo();
+    }
 
-      noBtn.style.display="none";
-      yesBtn.textContent="💘 УРААА!";
+    no.addEventListener("mouseenter", dodge);
+    no.addEventListener("touchstart", dodge, {passive:false});
+    no.addEventListener("focus", dodge);
+
+    yes.addEventListener("click", ()=>{
+      result.textContent = "Я ЗНАЛ!!! 💍💖";
+      fun.textContent = "Официально: «Нет» отменяется 😂";
+      boom();
+
+      no.style.display = "none";
+      yes.textContent = "МЫ ЖЕНАТЫ 😎";
+      yes.style.transform = `translateX(-115px) scale(3.2)`;
+
+      setTimeout(()=>{ overlay.style.display="flex"; }, 700);
     });
 
-    window.onload = moveNo;
+    window.addEventListener("load", ()=>{ moveNo(); });
+    window.addEventListener("resize", ()=>{ moveNo(); });
   </script>
 </body>
 </html>
