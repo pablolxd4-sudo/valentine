@@ -17,26 +17,9 @@
       background: linear-gradient(135deg, #ffb6d5, #fff0f7);
     }
 
-    /* фон сердечки */
-    body::before{
-      content:"💖 💘 💕 💗 💞";
-      position:absolute;
-      font-size:60px;
-      opacity:0.15;
-      width:100%;
-      text-align:center;
-      top:20%;
-      animation: float 6s infinite alternate ease-in-out;
-    }
-
-    @keyframes float{
-      from{ transform: translateY(-20px); }
-      to{ transform: translateY(30px); }
-    }
-
     .card{
-      width:min(450px, calc(100% - 30px));
-      height:280px;
+      width:min(480px, calc(100% - 30px));
+      height:320px;
       background:white;
       border-radius:25px;
       padding:25px;
@@ -52,12 +35,12 @@
     }
 
     .buttons{
-      margin-top:40px;
+      margin-top:45px;
       display:flex;
       justify-content:center;
       gap:20px;
       position:relative;
-      height:80px;
+      height:90px;
     }
 
     button{
@@ -77,10 +60,6 @@
       z-index:2;
     }
 
-    #yes:hover{
-      transform:scale(1.05);
-    }
-
     #no{
       background:#eee;
       position:absolute;
@@ -96,7 +75,13 @@
       min-height:30px;
     }
 
-    /* подпись */
+    #funText{
+      margin-top:10px;
+      font-size:16px;
+      color:#444;
+      min-height:22px;
+    }
+
     .signature{
       position:absolute;
       bottom:10px;
@@ -106,7 +91,6 @@
       font-style:italic;
     }
 
-    /* конфетти */
     .confetti{
       position:absolute;
       top:-20px;
@@ -124,7 +108,7 @@
 </head>
 
 <body>
-  <div class="card" id="card">
+  <div class="card">
     <h1>Алеся, ты будешь моей валентинкой? 💘</h1>
 
     <div class="buttons" id="zone">
@@ -133,6 +117,8 @@
     </div>
 
     <div id="result"></div>
+    <div id="funText"></div>
+
     <div class="signature">Никита Захлестных</div>
   </div>
 
@@ -140,17 +126,31 @@
     const yesBtn = document.getElementById("yes");
     const noBtn = document.getElementById("no");
     const zone = document.getElementById("zone");
+
     const result = document.getElementById("result");
+    const funText = document.getElementById("funText");
 
     let yesScale = 1;
+    let counter = 0;
+
+    const excuses = [
+      "ой промахнулась 😳",
+      "не туда жмёшь 😂",
+      "Алеся, ну пожалуйста 💖",
+      "нет кнопки нет 😈",
+      "ты серьёзно хочешь нажать 'Нет'?",
+      "я убегаю!!! 🏃‍♂️",
+      "ДА выбирай 😭",
+      "ну хватит уже 😂",
+      "последний шанс..."
+    ];
 
     function moveNo(){
       const rect = zone.getBoundingClientRect();
 
-      // зона движения только справа, чтобы не мешать "Да"
+      // двигаем только справа (не мешаем Да)
       const minX = rect.width / 2;
       const maxX = rect.width - noBtn.offsetWidth;
-
       const maxY = rect.height - noBtn.offsetHeight;
 
       const x = Math.random() * (maxX - minX) + minX;
@@ -159,9 +159,13 @@
       noBtn.style.left = x + "px";
       noBtn.style.top = y + "px";
 
-      // увеличиваем "Да"
-      yesScale += 0.1;
+      // увеличиваем Да
+      yesScale += 0.12;
       yesBtn.style.transform = `scale(${yesScale})`;
+
+      // меняем текст
+      funText.textContent = excuses[counter % excuses.length];
+      counter++;
     }
 
     // ПК
@@ -173,17 +177,15 @@
       moveNo();
     });
 
-    // 🎉 конфетти
+    // конфетти
     function confetti(){
-      const colors = ["red","yellow","blue","hotpink","orange","lime"];
-
-      for(let i=0;i<70;i++){
+      for(let i=0;i<80;i++){
         const c = document.createElement("div");
         c.className="confetti";
         c.textContent = Math.random()<0.5 ? "💖" : "🎉";
 
         c.style.left = Math.random()*100 + "vw";
-        c.style.fontSize = (15+Math.random()*20)+"px";
+        c.style.fontSize = (15+Math.random()*25)+"px";
         c.style.animationDuration = (2+Math.random()*2)+"s";
 
         document.body.appendChild(c);
@@ -192,10 +194,12 @@
     }
 
     yesBtn.addEventListener("click", ()=>{
-      result.textContent="Я знал!!! 💍💖";
+      result.textContent="Я ЗНАЛ!!! 💍💖";
+      funText.textContent="Теперь ты официально моя валентинка 😎";
       confetti();
+
       noBtn.style.display="none";
-      yesBtn.textContent="Урааа!!!";
+      yesBtn.textContent="💘 УРААА!";
     });
 
     window.onload = moveNo;
